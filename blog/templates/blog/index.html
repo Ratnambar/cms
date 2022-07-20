@@ -1,0 +1,89 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+
+
+
+{% block content %}
+
+
+<div class="container">
+    <div id="trending-posts-container">
+        <div id="trending-posts">
+            <h5>Trending Posts</h5>
+        </div>
+        <div id="trending-posts">
+            {% for cat in categories %}
+            <a href="filter/{{ cat.id }}" id="cat-button"><button id="btn">{{ cat.name }}</button></a>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    {% comment %} <div class="row ">
+        {% for post in posts %} {% endcomment %}
+            {% comment %} <div class="col" style="display: inline-flex;">
+                <a href="{{ post.get_absolute_url }}">
+                    <div class="card h-100">
+                        <img src="{{ post.image.url }}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title"><strong>{{ post.title }}</strong></h5>
+                            <h6 class="post-author text-info">{{ post.author }}&nbsp;|&nbsp;</h6><p class="post-date" style="font-size: 15px;">{{ post.date }}</p>
+                            <span class="card-text text-dark">{{ post.content|safe|truncatechars:350 }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div> {% endcomment %}
+
+
+            <div class="card-group">
+                {% for post in posts %}
+                    <div class="card col-md-4">
+                        <a href="{{ post.get_absolute_url }}">
+                        <img src="{{post.image.url}}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">{{post.title}}</h5>
+                            <div class="card-footer">
+                                <small class="text-primary">{{post.author}}&nbsp;&nbsp;|&nbsp;&nbsp;{{post.date}}</small>
+                            </div>
+                            <p class="card-text">{{post.content|safe}}</p>
+                        </div>
+                        
+                    </a>
+                    </div>
+                {% endfor %}
+                
+    {% comment %} </div> {% endcomment %}
+</div>
+
+
+<style>
+    .container{
+        width: 100%;
+        left: 0;
+        right: 0;
+        margin: auto;
+        overflow: hidden;
+    }
+
+    #trending-posts-container{
+        margin: auto;
+        width: 80%;
+    }
+
+    #trending-posts{
+        overflow: hidden;
+        width: 100%;
+    }
+
+    #cat-button{
+        font-size: 12px;
+    }
+
+ 
+    
+    
+
+</style>
+
+{% endblock %}

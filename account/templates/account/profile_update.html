@@ -1,0 +1,16 @@
+{% extends "blog/base.html" %}
+
+{% block content %}>
+    <div id="profile-update-div" style="margin:0px auto;">
+
+
+            <form method="post" id="profile-update-form" enctype="multipart/form-data">
+
+                {% csrf_token %}
+                    {{ form.as_p }}
+                <a id="update-btn" href="{% url 'password_reset' %}" style="background-color:white;padding:5px;margin-left:200px;margin-bottom:-150px;border:1px solid blue;">Forgot Password</a><br>
+                <input  type="submit" value="Update" style="margin-left:100px;border:none;padding:5px 10px 5px 10px;">
+            </form>
+
+    </div>
+{% endblock %}
