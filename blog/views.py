@@ -123,7 +123,7 @@ def post_details_view(request, sno):
             replyDict[reply.parent.sno] = [reply]
         else:
             replyDict[reply.parent.sno].append(reply)
-    print(replyDict)
+    # print(replyDict)
     context = {'post': post, 'user': request.user,'total_likes':total_likes,'comments':comments,'replyDict':replyDict}
     return render(request, 'blog/details.html', context)
 

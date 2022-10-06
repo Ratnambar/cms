@@ -1,10 +1,11 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render,redirect
 from django.views.generic import CreateView,UpdateView
-from django.contrib.auth.forms import UserCreationForm
 from account.forms import SignUpForm, ProfileUpdateForm
-from blog.models import Post, Category
+from blog.models import Post
 from account.models import Profile
-from django.contrib.auth.models import User
+
 from django.views.generic.edit import UpdateView
 from django.urls import reverse_lazy
 # Create your views here.
@@ -29,8 +30,11 @@ def profile_page_view(request):
     return render(request, 'account/profile.html', context)
 
 
-class UpdateProfileView(UpdateView):
+
+class UpdateProfileView(LoginRequiredMixin, UpdateView):
     model = Profile
     form_class = ProfileUpdateForm
     template_name = "account/profile_update.html"
     success_url = reverse_lazy('profile')
+
+
