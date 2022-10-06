@@ -1,8 +1,12 @@
+from django.conf import settings
+from email import message
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 from account.models import Profile
 from django.forms.widgets import PasswordInput, TextInput
+from django.core.mail import BadHeaderError, send_mail
+from django.http import HttpResponse, HttpResponseRedirect
 
 
 class SignUpForm(UserCreationForm):
@@ -33,6 +37,21 @@ class SignUpForm(UserCreationForm):
         if '@gmail.com' not in email or '@yahoo.com' not in email:
             raise forms.ValidationError("Please enter valid email address.")
         return email
+
+
+    def send_mail(request):
+        subject = request.POST.get('subject', '')
+        message = request.POST.get('message', '')
+        from_email = request.POST.get('email', '')
+        if subject and message and from_email :
+            try:
+                send_mail(subject, message, from_email, [settings.EMAIL_HOST_USER])
+            except BadHeaderError:
+                return HttpResponse("Invalid header found.")
+            return HttpResponse("Email has been sent.")
+        else:
+            return HttpResponse("Make sure all fields are correct.")
+
 
 
 

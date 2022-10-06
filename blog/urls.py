@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 # from blog.views import index
-from blog.views import indexPage,PostListView,PostFormView,search_code,view_by_cat_button,BtnBlogDetails, contact, post_edit_form_view,post_details_view,like_post,PostFormUpdateView,PostFormDeleteView,postComment
+from blog.views import indexPage, PostListView, PostFormView, search_code, view_by_cat_button, BtnBlogDetails, contact, post_edit_form_view, post_details_view, like_post, PostFormUpdateView, postComment
 
 
 urlpatterns = [
@@ -16,6 +16,6 @@ urlpatterns = [
     path("filter/<int:id>", view_by_cat_button),
     path("filter/<slug:slug>", BtnBlogDetails),
     path("posts/<slug:slug>", PostFormUpdateView.as_view(), name="update-blog"),
-    path("delete/<slug:slug>", PostFormDeleteView.as_view(),name="delete-blog"),
-    path('comment', postComment, name="postComment"),
+    # path("delete/<slug:slug>", PostFormDeleteView.as_view(),name="delete-blog"),
+    path('comment', postComment, name="postComment")
 ]
