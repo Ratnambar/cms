@@ -1,13 +1,17 @@
 from django.urls import path, include
-from account.views import UserCreateView, profile_page_view, UpdateProfileView, change_password
+from account.views import register_user, login_view, logout_user, profile_page_view, UpdateProfileView, change_password
 from django.contrib.auth import views as auth_views
 # from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView, PasswordChangeView,PasswordChangeDoneView
 
 
 urlpatterns = [
-    path('signup/', UserCreateView.as_view(template_name="account/signup.html"), name="signup"),
-    path('login/',  auth_views.LoginView.as_view(template_name="account/login.html"), name="login"),
-    path('', include('django.contrib.auth.urls')),
+    
+    path('signup/', register_user, name="signup"),
+    path('login/', login_view, name='login'),
+    path('logout/', logout_user, name='logout'),
+    # path('', include('django.contrib.auth.urls')),
+    # path('login/',  auth_views.LoginView.as_view(template_name="account/login.html"), name="login"),
+    
     path('profile/', profile_page_view, name='profile'),
     # path('profile/<int:pk>', profile, name="ProfileUpdate"),
     path('profile/<int:pk>', UpdateProfileView.as_view(), name="ProfileUpdate"),
