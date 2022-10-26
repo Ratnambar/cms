@@ -27,8 +27,8 @@ class Post(models.Model):
     slug = models.SlugField(unique=True,blank=True)
     content = tinymce_models.HTMLField()
     status = models.CharField(max_length=1, choices=statuses)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='author')
     date = models.DateField(auto_now_add=True)
     image = models.ImageField(upload_to="blog/post", blank=True)
     likes = models.ManyToManyField(User, related_name='likes', blank=True)
@@ -56,8 +56,8 @@ class Post(models.Model):
 class BlogComment(models.Model):
     sno = models.AutoField(primary_key=True)
     comment = models.TextField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='commenter')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post')
     parent = models.ForeignKey('self', on_delete=models.CASCADE,null=True)
     timestamp = models.DateTimeField(default=now)
 

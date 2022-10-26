@@ -1,3 +1,4 @@
+from dataclasses import fields
 from django.conf import settings
 from email import message
 from django.contrib.auth.forms import UserCreationForm
@@ -34,7 +35,7 @@ class SignUpForm(UserCreationForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if '@gmail.com' not in email or '@yahoo.com' not in email:
+        if '@gmail.com' not in email :
             raise forms.ValidationError("Please enter valid email address.")
         return email
 
@@ -52,6 +53,14 @@ class SignUpForm(UserCreationForm):
         else:
             return HttpResponse("Make sure all fields are correct.")
 
+
+
+
+class LoginForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput())
+    class Meta:
+        model = User
+        fields = ['username', 'password']
 
 
 
