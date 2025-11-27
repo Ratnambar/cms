@@ -14,7 +14,9 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save,sender=User)
 def set_user_group(sender, instance, created, **kwargs):
     if created:
-        user_group = Group.objects.get(name="User")
-        author_group = Group.objects.get(name="Author")
-        instance.groups.add(user_group)
-        instance.groups.add(author_group)
+        user_group, _ = Group.objects.get_or_create(name="User")
+        author_group, _ = Group.objects.get_or_create(name="Author")
+        if user_group:
+            instance.groups.add(user_group)
+        if author_group:
+            instance.groups.add(author_group)

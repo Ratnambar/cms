@@ -56,6 +56,7 @@ def login_view(request):
             request.session['username'] = username
             messages.success(request, "loggedin successfully.")
             return redirect("index")
+            return render(request, "blog/base.html",{'user':user})
         else:
             messages.error(request, "can't login")
             # form = LoginForm(request.POST)
