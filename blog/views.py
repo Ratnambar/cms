@@ -22,7 +22,7 @@ def indexPage(request,*args,**kwargs):
     return render(request, "blog/index.html", context={"posts": posts})
 
 
-@cache_page(60 * 15, name='dispatch')
+@cache_page(60 * 15)
 class PostListView(ListView):
     model = Post
     queryset = Post.objects.all()
