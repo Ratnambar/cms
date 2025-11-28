@@ -13,9 +13,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin,UserPassesTestMixin
 from django.urls import reverse_lazy,reverse
 from blog.templatetags import extras
-
-
-
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 
 def indexPage(request,*args,**kwargs):
@@ -23,7 +22,7 @@ def indexPage(request,*args,**kwargs):
     return render(request, "blog/index.html", context={"posts": posts})
 
 
-
+@cache_page(60 * 15, name='dispatch')
 class PostListView(ListView):
     model = Post
     queryset = Post.objects.all()
@@ -36,14 +35,12 @@ class PostListView(ListView):
         return context
 
 
-
 class PostFormView(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
     login_url = 'login'
     model = Post
     permission_required = 'blog.add_post'
     template_name = 'blog/post.html'
     form_class = PostForm
-
 
 
 class PostFormUpdateView(LoginRequiredMixin,PermissionRequiredMixin,UserPassesTestMixin,UpdateView):
@@ -85,7 +82,7 @@ def search_code(request):
         return render(request, "blog/search.html")
 
 
-
+@cache_page(60 * 15)
 def view_by_cat_button(request, id):
     category = Category.objects.all()
     posts = Post.objects.filter(category__id=id)
@@ -96,7 +93,7 @@ def view_by_cat_button(request, id):
     return render(request, 'blog/cat_views.html', context)
 
 
-
+@cache_page(60 * 15)
 def BtnBlogDetails(request, slug):
     post = Post.objects.filter(slug=slug).first()
     total_like = get_object_or_404(Post,slug=slug)
@@ -106,7 +103,7 @@ def BtnBlogDetails(request, slug):
     return render(request, 'blog/btn-details.html',context)
 
 
-
+@cache_page(60 * 15)
 def post_details_view(request, sno):
     post = Post.objects.filter(sno=sno).first()
     total_like = get_object_or_404(Post, sno=sno)
@@ -124,13 +121,11 @@ def post_details_view(request, sno):
     return render(request, 'blog/details.html', context)
 
 
-
 @login_required
 def like_post(request,sno):
     post = Post.objects.get(sno=sno)
     post.likes.add(request.user)
     return HttpResponseRedirect(reverse('post-detail',args=[int(request.POST.get('post_sno'))]))
-
 
 
 @login_required
@@ -154,7 +149,6 @@ def postComment(request):
         return redirect(f"/blogs/{postSno}")
 
 
-
 def contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
@@ -170,12 +164,9 @@ def contact(request):
     return render(request, 'blog/contact.html', context={"form": ContactForm})
 
 
-
-
 def Trending_Posts(request):
     trending_posts = Trending_Posts.objects.all()
     return render(request, "blog/index.html", context={"trending_posts": trending_posts})
-
 
 
 @login_required
@@ -194,6 +185,3 @@ def post_edit_form_view(request,id,*args,**kwargs):
             form.save()
             return HttpResponse("welcome")
         return render(request, "blog/post.html", context={"form": form})
-
-
-

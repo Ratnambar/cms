@@ -11,7 +11,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 
 class SignUpForm(UserCreationForm):
-
     class Meta:
         model = User
         fields = ('username', 'password1', 'password2', 'email', 'first_name', 'last_name')
@@ -39,7 +38,6 @@ class SignUpForm(UserCreationForm):
             raise forms.ValidationError("Please enter valid email address.")
         return email
 
-
     def send_mail(request):
         subject = request.POST.get('subject', '')
         message = request.POST.get('message', '')
@@ -54,15 +52,11 @@ class SignUpForm(UserCreationForm):
             return HttpResponse("Make sure all fields are correct.")
 
 
-
-
 class LoginForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
     class Meta:
         model = User
         fields = ['username', 'password']
-
-
 
 
 class ProfileUpdateForm(forms.ModelForm):
