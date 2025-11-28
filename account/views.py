@@ -23,7 +23,6 @@ from django.shortcuts import HttpResponse
 
 
 def register_user(request):
-
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -70,8 +69,6 @@ def logout_user(request):
     return redirect("login")
 
 
-
-
 @login_required
 def profile_page_view(request):
     user = request.user.id
@@ -84,7 +81,6 @@ def profile_page_view(request):
         'posts': posts,
     }
     return render(request, 'account/profile.html', context)
-
 
 
 class UpdateProfileView(LoginRequiredMixin, UpdateView):

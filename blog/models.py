@@ -8,7 +8,6 @@ from django.utils.timezone import now
 
 # Create your models here.
 
-
 class Category(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
