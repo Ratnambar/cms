@@ -166,21 +166,34 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 # Cache configuration
+# For development: Using local memory cache (no Redis required)
+# For production: Uncomment Redis configuration below
 CACHES = {
     'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379',  # Use database 1 for cache
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
-        'KEY_PREFIX': 'cms_cache',
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
         'TIMEOUT': 300,  # Default timeout in seconds (5 minutes)
     }
 }
 
-# Session backend (optional - to store sessions in Redis)
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
+# Redis configuration (uncomment when Redis is running)
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://127.0.0.1:6379',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         },
+#         'KEY_PREFIX': 'cms_cache',
+#         'TIMEOUT': 300,
+#     }
+# }
+
+# Session backend - using database instead of cache for development
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# For Redis sessions (uncomment when Redis is running):
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+# SESSION_CACHE_ALIAS = 'default'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
