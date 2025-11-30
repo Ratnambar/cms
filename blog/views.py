@@ -95,30 +95,39 @@ def view_by_cat_button(request, id):
 
 @cache_page(60 * 15)
 def BtnBlogDetails(request, slug):
-    post = Post.objects.filter(slug=slug).first()
-    total_like = get_object_or_404(Post,slug=slug)
-    total_likes = total_like.total_likes()
-    comments = BlogComment.objects.filter(post=post)
-    context = {'post': post, 'user': request.user,'total_likes':total_likes,'comments':comments}
-    return render(request, 'blog/btn-details.html',context)
+    try:
+        post = Post.objects.filter(slug=slug).first()
+        total_like = get_object_or_404(Post,slug=slug)
+        total_likes = total_like.total_likes()
+        comments = BlogComment.objects.filter(post=post)
+        context = {'post': post, 'user': request.user,'total_likes':total_likes,'comments':comments}
+        return render(request, 'blog/btn-details.html',context)
+    except Http404:
+        raise Http404("Post not found")
 
 
 @cache_page(60 * 15)
 def post_details_view(request, sno):
-    post = Post.objects.filter(sno=sno).first()
-    total_like = get_object_or_404(Post, sno=sno)
-    total_likes = total_like.total_likes()
-    comments = BlogComment.objects.filter(post=post,parent=None)
-    replies = BlogComment.objects.filter(post=post).exclude(parent=None)
-    replyDict = {}
+    try:
+        post = Post.objects.filter(sno=sno).first()
+        total_like = get_object_or_404(Post, sno=sno)
+        total_likes = total_like.total_likes()
+        comments = BlogComment.objects.filter(post=post,parent=None)
+        replies = BlogComment.objects.filter(post=post).exclude(parent=None)
+        replyDict = {}
 
-    for reply in replies:
-        if reply.parent.sno not in replyDict.keys():
-            replyDict[reply.parent.sno] = [reply]
-        else:
-            replyDict[reply.parent.sno].append(reply)
-    context = {'post': post, 'user': request.user,'total_likes':total_likes,'comments':comments,'replyDict':replyDict}
-    return render(request, 'blog/details.html', context)
+        for reply in replies:
+            if reply.parent.sno not in replyDict.keys():
+                replyDict[reply.parent.sno] = [reply]
+            else:
+                replyDict[reply.parent.sno].append(reply)
+        context = {'post': post, 'user': request.user,'total_likes':total_likes,'comments':comments,'replyDict':replyDict}
+        return render(request, 'blog/details.html', context)
+    except Post.DoesNotExist:
+        return render(request, 'blog/404.html',
+        {error_message:"Post not found"}, status=404)
+    except Exception as e:
+        return render(request, 'blog/500.html',{'error': str(e)}, status=500)
 
 
 @login_required
@@ -137,7 +146,7 @@ def postComment(request):
         parentSno = request.POST.get("parentSno")
         post = Post.objects.get(sno=postSno)
 
-        if parentSno == "":
+        if parentSno == "" or parentSno is None:
             comment = BlogComment(comment=comment, user=user, post=post)
             comment.save()
             messages.success(request,"Your comment has been posted successfully.")
@@ -153,10 +162,13 @@ def contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Thanks for contacting us !. We will get back to you soon.')
-            return redirect(f"/blogs/contact/")
-        messages.error(request, 'Something bad. !')
+            try:
+                form.save()
+                messages.success(request, 'Thanks for contacting us !. We will get back to you soon.')
+                return redirect(f"/blogs/contact/")
+            except Exception as e:
+                messages.error(request, f'Error saving contact form: {str(e)}')
+                return render(request, 'blog/contact.html', context={'form': form, 'error_message': str(e)})
         form = ContactForm()
         context = {'form':form}
 

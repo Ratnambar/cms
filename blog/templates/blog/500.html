@@ -1,0 +1,8 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+<div class="error-container">
+    <h1>500 - Internal Server Error</h1>
+    <p>{{ error|default:"An error occurred while processing your request." }}</p>
+    <a href="{% url 'index' %}">Go to Home</a>
+</div>
+{% endblock %}
