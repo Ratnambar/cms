@@ -13,6 +13,7 @@ from django.views.generic.edit import UpdateView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import HttpResponse
+from django.http import Http404, HttpResponseNotFound, HttpResponseServerError
 # Create your views here.
 
 
@@ -36,6 +37,7 @@ def register_user(request):
             return redirect('index')
         else:
             messages.error(request, "check the credentials.")
+            return render(request, 'account/signup.html',{'form':form})
     else:
         form = SignUpForm()
         return render(request, 'account/signup.html',{'form':form})
@@ -55,11 +57,10 @@ def login_view(request):
             request.session['username'] = username
             messages.success(request, "loggedin successfully.")
             return redirect("index")
-            return render(request, "blog/base.html",{'user':user})
         else:
             messages.error(request, "can't login")
-            # form = LoginForm(request.POST)
-            # return render(request, "account/login.hml", {'form':form})
+            form = LoginForm()
+            return render(request, "account/login.html", {'form':form})
     else:
         form = LoginForm()
         return render(request, "account/login.html",{'form':form})

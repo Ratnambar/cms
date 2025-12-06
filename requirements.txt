@@ -11,3 +11,6 @@ pytz>=2024.1
 sqlparse>=0.5.0
 whitenoise>=6.7.0
 psycopg2-binary>=2.9.9
+pytest>=7.4.0
+pytest-django>=4.7.0
+pytest-cov>=4.1.0  # Optional: for coverage reports

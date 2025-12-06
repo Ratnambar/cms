@@ -12,7 +12,9 @@
 
 
 <div class="card mb-3">
-    <img class="card-img-top" src="{{ post.image.url }}" alt="Card image cap">
+    {% if post.image %}
+        <img class="card-img-top" src="{{ post.image.url }}" alt="{{ post.title }}">
+    {% endif %}
     <div class="card-body">
         <h5 class="card-title text-dark">{{ post.title }}</h5>
         <p class="card-text text-primary">{{ post.author }}&nbsp;|&nbsp;<span class=" post-date text-dark">{{ post.date }}</span></small></p>

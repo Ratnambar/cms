@@ -26,7 +26,13 @@
             <div class="col">
                 <a href="{{ post.slug }}">
                     <div class="card h-100">
-                        <img src="{{ post.image.url }}" class="card-img-top" alt="...">
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
+                        {% else %}
+                            <div class="card-img-top" style="background-color: #f0f0f0; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: #999;">No Image</span>
+                            </div>
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title"><strong>{{ post.title }}</strong></h5>
                             <h6 class="post-author text-info">{{post.author}}&nbsp;|&nbsp;</h6>
