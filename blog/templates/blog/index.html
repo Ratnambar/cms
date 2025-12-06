@@ -40,7 +40,13 @@
                 {% for post in posts %}
                     <div class="card col-md-4">
                         <a href="{{ post.get_absolute_url }}">
-                        <img src="{{post.image.url}}" class="card-img-top" alt="...">
+                        {% if post.image %}
+                            <img src="{{post.image.url}}" class="card-img-top" alt="{{post.title}}">
+                        {% else %}
+                            <div class="card-img-top" style="background-color: #f0f0f0; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: #999;">No Image</span>
+                            </div>
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{post.title}}</h5>
                             <div class="card-footer">

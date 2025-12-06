@@ -37,6 +37,7 @@ def register_user(request):
             return redirect('index')
         else:
             messages.error(request, "check the credentials.")
+            return render(request, 'account/signup.html',{'form':form})
     else:
         form = SignUpForm()
         return render(request, 'account/signup.html',{'form':form})
@@ -56,11 +57,10 @@ def login_view(request):
             request.session['username'] = username
             messages.success(request, "loggedin successfully.")
             return redirect("index")
-            return render(request, "blog/base.html",{'user':user})
         else:
             messages.error(request, "can't login")
-            # form = LoginForm(request.POST)
-            # return render(request, "account/login.hml", {'form':form})
+            form = LoginForm()
+            return render(request, "account/login.html", {'form':form})
     else:
         form = LoginForm()
         return render(request, "account/login.html",{'form':form})
