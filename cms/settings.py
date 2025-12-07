@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 # import django_heroku
 import os
+import sys
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,7 +25,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '@8h4w9k7ns7vwk4!1-)jk4qbc^*=+4midg^%xl9+44!+6k(hey'
+SECRET_KEY = config('SECRET_KEY')
 # SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -45,7 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tinymce',
     'blog',
-    'django.contrib.humanize'
+    'django.contrib.humanize',
+    'django_celery_beat',  # For periodic task scheduling
 ]
 
 MIDDLEWARE = [
@@ -195,11 +198,91 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 # SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 # SESSION_CACHE_ALIAS = 'default'
 
+# Email Configuration
+# ============================================================================
+# GMAIL SETUP INSTRUCTIONS (if getting "Application-specific password required"):
+# ============================================================================
+# 
+# STEP 1: Enable 2-Step Verification
+#   → Go to: https://myaccount.google.com/security
+#   → Click "2-Step Verification" and enable it (if not already enabled)
+#   → You MUST complete this step before app passwords will work!
+#
+# STEP 2: Generate App-Specific Password
+#   → Go to: https://myaccount.google.com/apppasswords
+#   → Select "Mail" from the first dropdown
+#   → Select "Other (Custom name)" from the second dropdown
+#   → Enter: "Django CMS" as the name
+#   → Click "Generate"
+#   → Copy the 16-character password (it will show as "abcd efgh ijkl mnop")
+#
+# STEP 3: Remove ALL Spaces
+#   → The password Gmail shows: "vrlt jdim rrvr qdjd"
+#   → Use in settings (NO SPACES): "vrltjdimrrvrqdjd"
+#   → App passwords are exactly 16 characters WITHOUT spaces
+#
+# STEP 4: Update settings.py
+#   → Replace EMAIL_HOST_PASSWORD below with your new password (no spaces)
+#   → Restart Celery worker after updating
+#
+# STEP 5: Test the configuration
+#   → Run: python manage.py shell < test_email.py
+#   → Or use Django shell to test email sending
+#
+# TROUBLESHOOTING:
+#   - If still getting errors, try generating a NEW app password
+#   - Make sure 2-Step Verification is actually enabled (not just set up)
+#   - Verify you're using the correct Gmail account
+#   - Check that the password has exactly 16 characters (no spaces)
+# ============================================================================
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'guptaratnambar123@gmail.com'
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+# IMPORTANT: App-specific password must be 16 characters WITHOUT spaces
+# Current password: vrltjdimrrvrqdjd (16 chars, no spaces - format is correct)
+# If still getting errors, generate a NEW app password and replace this value
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+# Celery Configuration
+# Note: Redis must be running for Celery to work
+# To install Redis on Windows:
+#   1. Use Docker: docker run -d -p 6379:6379 redis
+#   2. Or use WSL: wsl -> sudo apt-get install redis-server -> redis-server
+#   3. Or download from: https://github.com/microsoftarchive/redis/releases
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'  # Redis as message broker
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'  # Redis as result backend
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = True
+
+# Connection and retry settings
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True  # Retry connection on startup
+CELERY_BROKER_CONNECTION_RETRY = True  # Enable connection retries
+CELERY_BROKER_CONNECTION_MAX_RETRIES = 100  # Maximum retry attempts
+
+# Task acknowledgment settings (for connection loss handling)
+CELERY_TASK_ACKS_LATE = True  # Acknowledge tasks after completion
+CELERY_WORKER_CANCEL_LONG_RUNNING_TASKS_ON_CONNECTION_LOSS = False  # Don't cancel tasks on connection loss (Celery 5.1 default)
+
+# If Redis is not available, tasks will fail gracefully (handled in views)
+CELERY_TASK_ALWAYS_EAGER = False  # Set to True for testing without Redis (tasks run synchronously)
+
+# Celery Beat Configuration (for periodic tasks)
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# Windows-specific configuration
+# Use 'solo' pool on Windows to avoid multiprocessing permission issues
+# The 'solo' pool runs tasks in the same process (no multiprocessing)
+# For production on Linux/Unix, use 'prefork' or 'gevent' pools
+if sys.platform == 'win32':
+    CELERY_WORKER_POOL = 'solo'  # Use solo pool on Windows
+    # Alternative: Use threads pool (uncomment if you need concurrency)
+    # CELERY_WORKER_POOL = 'threads'
+    # CELERY_WORKER_CONCURRENCY = 4
 
 # django_heroku.settings(locals())

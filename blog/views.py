@@ -15,6 +15,9 @@ from django.urls import reverse_lazy,reverse
 from blog.templatetags import extras
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
+from blog.tasks import send_daily_blog_summary
+
+
 
 
 def indexPage(request,*args,**kwargs):
@@ -41,6 +44,21 @@ class PostFormView(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
     permission_required = 'blog.add_post'
     template_name = 'blog/post.html'
     form_class = PostForm
+
+    def form_valid(self, form):
+        """Called when form is valid and post is saved"""
+        response = super().form_valid(form)
+        # Trigger daily blog summary task after successful post creation
+        try:
+            print("Sending daily blog summary...")
+            send_daily_blog_summary.delay()  # Fire and forget - task runs asynchronously
+            print("Daily blog summary sent asynchronously")
+        except Exception as e:
+            # Handle case where Celery/Redis is not available
+            print(f"Could not send daily blog summary: {str(e)}")
+            # Optionally add a message to the user
+            messages.warning(self.request, "Post created successfully, but daily summary notification could not be sent.")
+        return response
 
 
 class PostFormUpdateView(LoginRequiredMixin,PermissionRequiredMixin,UserPassesTestMixin,UpdateView):
